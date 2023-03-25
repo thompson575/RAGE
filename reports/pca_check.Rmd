@@ -1,0 +1,105 @@
+---
+title: 'RAGE: Check PCA'
+author: "John Thompson"
+date: "2023-02-17"
+output: 
+  html_document:
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(glue)
+
+home <- "C:/Projects/RCourse/Masterclass/RAGE"
+
+source("C:/Projects/RCourse/Masterclass/CAGE/code/display_functions.R")
+
+# --- file names
+file_VAL <- file.path(home, "data/cache/validation.rds")
+file_TRN <- file.path(home, "data/cache/training.rds")
+file_PAT <- file.path(home, "data/cache/patients.rds")
+file_VPC <- file.path(home, "data/cache/train_vpca.rds")
+file_VST <- file.path(home, "data/cache/train_vpca_scores.rds")
+file_VSV <- file.path(home, "data/cache/valid_vpca_scores.rds")
+file_CPC <- file.path(home, "data/cache/train_cpca.rds")
+file_CST <- file.path(home, "data/cache/train_cpca_scores.rds")
+file_CSV <- file.path(home, "data/cache/valid_cpca_scores.rds")
+file_LGF <- file.path(home, "data/cache/pca_log.txt")
+
+knitr::opts_chunk$set(echo = TRUE, 
+                      fig.align = "center",
+                      message=FALSE)
+# --- read patient data
+patientDF <- readRDS(file_PAT)
+```
+
+## Background
+
+PCA of the 1000 probe subset of the expression data.
+
+## Warning Messages
+
+```{r}
+readLines(file_LGF)
+```
+
+## Unscaled PCA
+
+```{r}
+vpca <- readRDS(file_VPC)
+
+# ---------------------------------------------
+# Principal Components Stdev (root eigenvalues)
+#
+plot_eigenvalues(vpca$sdev) +
+  ggtitle("Standard deviatons of the Principal Components")
+```
+
+## Unscaled PCA scores training data
+
+```{r}
+readRDS(file_VST) %>%
+  print() -> vScoreTrainDF
+
+```
+
+## Unscaled PCA scores validation Data
+
+```{r}
+readRDS(file_VSV) %>%
+  print() -> vScoreValidDF
+
+
+```
+
+## Scaled PCA
+
+```{r}
+cpca <- readRDS(file_CPC)
+
+# ---------------------------------------------
+# Principal Components Stdev (root eigenvalues)
+#
+plot_eigenvalues(cpca$sdev) +
+  ggtitle("Standard deviatons of the Principal Components")
+```
+
+## Scaled PCA scores training data
+
+```{r}
+readRDS(file_CST) %>%
+  print() -> cScoreTrainDF
+
+```
+
+## Scaled PCA scores validation Data
+
+```{r}
+readRDS(file_CSV) %>%
+  print() -> cScoreValidDF
+
+
+```
+
+

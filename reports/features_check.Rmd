@@ -1,0 +1,95 @@
+---
+title: 'RAGE: Check Feature Selection'
+author: "John Thompson"
+date: "2023-02-17"
+output: 
+  html_document:
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(glue)
+
+home <- "C:/Projects/RCourse/Masterclass/RAGE"
+
+# -------------------------------------------------
+# dependencies - input files used by this script
+#
+file_FLS <- file.path(home, "data/cache/feature_loss.rds")
+file_LGF <- file.path(home, "data/cache/features_log.txt")
+
+knitr::opts_chunk$set(echo = TRUE, 
+                      fig.align = "center",
+                      message=FALSE)
+
+readRDS(file_FLS) -> loss
+```
+
+## Background
+
+PCA of the 1000 gene subset of the expression data.
+
+## Warning Messages
+
+```{r}
+readLines(file_LGF)
+```
+
+## Best genes
+
+```{r}
+loss$geneUniDF %>%
+  print() %>%
+  arrange(loss) %>%
+  print()
+```
+
+```{r}
+print(loss$geneSelectedDF)
+```
+
+
+## Unscaled PCA: Most Predictive PCs
+
+```{r}
+loss$vpcaUniDF %>%
+  print() %>%
+  arrange(loss) %>%
+  print()
+
+loss$vpcaSelectedDF %>%
+  print()
+```
+
+```{r}
+loss$vpcaOrderedDF %>%
+  print()
+```
+
+## Unscaled PCA: First PCs
+
+```{r}
+loss$vpcaOrderedDF %>%
+  print()
+```
+
+## Scaled PCA: Most Predictive PCs
+
+```{r}
+loss$cpcaUniDF %>%
+  print() %>%
+  arrange(loss) %>%
+  print()
+
+loss$cpcaSelectedDF %>%
+  print()
+```
+
+## Scaled PCA: First PCs
+
+```{r}
+loss$cpcaOrderedDF %>%
+  print()
+```
+

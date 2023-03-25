@@ -1,0 +1,65 @@
+---
+title: 'RAGE: Check Data'
+author: "John Thompson"
+date: "17th March 2023"
+output: 
+  html_document:
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(fs)
+
+cache    <- "C:/Projects/RCourse/Masterclass/RAGE/data/cache"
+
+exnFILE <- path(cache,   "expression.rds")
+patFILE <- path(cache,   "patients.rds")
+valFILE <- path(cache,   "validation.rds")
+trnFILE <- path(cache,   "training.rds")
+logFILE <- path(cache,   "read_data_log.txt")
+
+knitr::opts_chunk$set(echo = FALSE, fig.align = "center",
+                      message=FALSE)
+```
+
+## Warning Messages
+
+```{r}
+readLines(logFILE )
+```
+
+## Patient Data
+
+```{r}
+readRDS(patFILE)
+```
+
+## Expression Data
+
+```{r}
+readRDS(exnFILE)
+```
+
+## Training Data
+
+```{r}
+readRDS(trnFILE)
+```
+
+## Validation Data
+
+```{r}
+readRDS(valFILE)
+```
+
+## Expression Levels by Patient
+
+```{r}
+readRDS(trnFILE) %>%
+  slice(1:10) %>%
+  pivot_longer(-id, names_to = "gene", values_to = "expression") %>%
+  mutate( id = factor(id) ) %>%
+  ggplot( aes(x=id, y=expression)) +
+  geom_boxplot()
+```
