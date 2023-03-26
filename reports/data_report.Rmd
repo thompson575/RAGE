@@ -1,0 +1,81 @@
+---
+title: 'RAGE: Check Data'
+author: "John Thompson"
+date: "29 March 2023"
+output: 
+  html_document:
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(fs)
+
+cache    <- "C:/Projects/RCourse/Masterclass/RAGE/data/cache"
+
+trainDF <- readRDS(path(cache, "training.rds"))
+
+knitr::opts_chunk$set(echo = FALSE, 
+                      message=FALSE)
+
+theme_set(theme_light())
+```
+
+## Background
+
+Data for RAGE project. File GSE168753_processed_data.csv.gz downloaded from https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE168753  
+
+
+## Expression by Patient
+
+```{r}
+trainDF %>%
+  pivot_longer(-id, values_to = "expression", names_to = "gene") %>%
+  group_by(id) %>%
+  summarise( mn = mean(expression),
+             sd = sd(expression) )
+```
+
+Plot of standard deviation against mean
+```{r}
+trainDF %>%
+  pivot_longer(-id, values_to = "expression", names_to = "gene") %>%
+  group_by(id) %>%
+  summarise( mn = mean(expression),
+             sd = sd(expression) ) %>%
+  ggplot( aes(x=mn, y=sd)) +
+  geom_point() +
+  labs( x = "Mean Expression",
+        y = "St Deviation Expression",
+        title = "Each point represents a single patient")
+```
+
+## Expression by Gene
+
+```{r}
+trainDF %>%
+  pivot_longer(-id, values_to = "expression", names_to = "gene") %>%
+  group_by(gene) %>%
+  summarise( mn = mean(expression),
+             sd = sd(expression) )
+```
+
+Plot of standard deviation against mean
+```{r}
+trainDF %>%
+  pivot_longer(-id, values_to = "expression", names_to = "gene") %>%
+  group_by(gene) %>%
+  summarise( mn = mean(expression),
+             sd = sd(expression) ) %>%
+  ggplot( aes(x=mn, y=sd)) +
+  geom_point() +
+  labs( x = "Mean Expression",
+        y = "St Deviation Expression",
+        title = "Each point represents a single gene")
+```
+
+## Issues
+
+- One patient has a very low standard deviation and a mean near zero. Possible technical failure.  
+- Means expression very variable across patients. Suggests the need for normalisation. Standard deviation also quite variable.  
+- Expression across genes is unremarkable. Perhaps a negative correlation between mean and standard deviation.

@@ -1,27 +1,25 @@
+# -----------------------------------------------------------
+# RAGE: Regression After Gene Expression
 #
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
+# Shint app to inspect the training data 
 #
-# Find out more about building applications with Shiny here:
+# Date: 20 March 2023
 #
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
 library(tidyverse)
+library(fs)
 
-# Read the training data
-
+# --- Read the data
 cache <- "C:/Projects/RCourse/Masterclass/RAGE/data/cache"
 
-patientDF  <- readRDS( file.path(cache, "patients.rds") )
+patientDF <- readRDS(path(cache, "patients.rds") )
+trainDF   <- readRDS(path(cache, "training.rds"))
+nTrainDF  <- readRDS(path(cache, "norm_training.rds"))
 
-trainDF <- readRDS( file.path(cache, "training.rds"))
-nTrainDF <- readRDS( file.path(cache, "norm_training.rds"))
-
-# names of the 1000 genes
+# --- names of the 1000 genes
 genes <- names(trainDF)[-1]
 
+# --- join expression with patient data
 trainDF %>%
   left_join(patientDF, by = "id")  -> trainDF
 

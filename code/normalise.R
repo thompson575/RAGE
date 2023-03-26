@@ -1,9 +1,7 @@
 # -----------------------------------------------------------
 # RAGE: Regression After Gene Expression
 #
-# Normalise the training data by scaling  
-# Normalise the validation data using mean and std 
-# of the training data
+# Normalise the data by mean and std  
 #
 # Date: 20 March 2023
 #
@@ -14,67 +12,43 @@ library(fs)
 # data folders
 #
 cache    <- "C:/Projects/RCourse/Masterclass/RAGE/data/cache"
-rawData  <- "C:/Projects/RCourse/Masterclass/RAGE/data/rawData"
 
 # -------------------------------------------------
 # dependencies - input files used by this script
 #
-valFILE <- path(cache,   "validation.rds")
-trnFILE <- path(cache,   "training.rds")
+valRDS <- path(cache,   "validation.rds")
+trnRDS <- path(cache,   "training.rds")
 # -------------------------------------------------
 # targets - output files created by this script
 #
-nvlFILE <- path(cache,   "norm_validation.rds")
-ntrFILE <- path(cache,   "norm_training.rds")
-logFILE <- path(cache,   "normalise_log.txt")
+nvlRDS <- path(cache,   "norm_validation.rds")
+ntrRDS <- path(cache,   "norm_training.rds")
 
 # --------------------------------------------------
 # Divert warning messages to a log file
 #
-lf <- file(logFILE, open = "wt")
+lf <- file(path(cache,   "normalise_log.txt"), open = "wt")
 sink(lf, type = "message")
 
 # -----------------------------------------------
 # Training Data
 #
-readRDS(trnFILE) %>%
+readRDS(trnRDS) %>%
   pivot_longer(-id, names_to = "gene", values_to = "expression") %>%
-  pivot_wider(names_from = id, values_from = expression) -> byPatDF
-
-geneName <- byPatDF$gene
-
-byPatDF %>%
-  select(-gene) %>%
-  scale() %>%
-  as_tibble() %>%
-  mutate( gene = geneName) %>%
-  relocate(gene) %>%
-  pivot_longer(-gene, names_to = "id", values_to = "expression") %>%
-  mutate( id = as.numeric(id)) %>%
-  arrange(id, gene) %>%
+  group_by(id) %>%
+  mutate( expression = (expression - mean(expression)) / sd(expression)) %>%
   pivot_wider(names_from = gene, values_from = expression) %>%
-  saveRDS(ntrFILE)
+  saveRDS(ntrRDS)
 
 # -----------------------------------------------
 # Validation Data
 #
-readRDS(valFILE) %>%
+readRDS(valRDS) %>%
   pivot_longer(-id, names_to = "gene", values_to = "expression") %>%
-  pivot_wider(names_from = id, values_from = expression) -> byPatDF
-
-geneName <- byPatDF$gene
-
-byPatDF %>%
-  select(-gene) %>%
-  scale()  %>%
-  as_tibble() %>%
-  mutate( gene = geneName) %>%
-  relocate(gene) %>%
-  pivot_longer(-gene, names_to = "id", values_to = "expression") %>%
-  mutate( id = as.numeric(id)) %>%
-  arrange(id, gene) %>%
+  group_by(id) %>%
+  mutate( expression = (expression - mean(expression)) / sd(expression)) %>%
   pivot_wider(names_from = gene, values_from = expression) %>%
-  saveRDS(nvlFILE)
+  saveRDS(nvlRDS)
 
 # -----------------------------------------------
 # Close the log file

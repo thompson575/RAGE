@@ -1,7 +1,7 @@
 ---
-title: 'RAGE: Check Data'
+title: 'RAGE: Check Normalisation'
 author: "John Thompson"
-date: "17th March 2023"
+date: "20 March 2023"
 output: 
   html_document:
     theme: cerulean
@@ -13,71 +13,38 @@ library(fs)
 
 cache    <- "C:/Projects/RCourse/Masterclass/RAGE/data/cache"
 
-valFILE <- path(cache,   "validation.rds")
-trnFILE <- path(cache,   "training.rds")
-nvlFILE <- path(cache,   "norm_validation.rds")
-ntrFILE <- path(cache,   "norm_training.rds")
-logFILE <- path(cache,   "normalise_log.txt")
-
-knitr::opts_chunk$set(echo = FALSE, fig.align = "center",
+knitr::opts_chunk$set(echo = FALSE,
                       message=FALSE)
 ```
 
 ## Warning Messages
 
 ```{r}
-readLines(logFILE )
-```
-
-
-## Unnormalised Training Data
-
-```{r}
-readRDS(trnFILE) %>%
-  slice(1:10) %>%
-  pivot_longer(-id, names_to = "gene", values_to = "expression") %>%
-  mutate( id = factor(id) ) %>%
-  ggplot( aes(x=id, y=expression)) +
-  geom_boxplot()
+readLines(path(cache, "normalise_log.txt"))
 ```
 
 ## Normalised Training Data
 
 ```{r}
-readRDS(ntrFILE) %>%
-  slice(1:10) %>%
+readRDS(path(cache, "norm_training.rds")) %>%
+  print() %>%
   pivot_longer(-id, names_to = "gene", values_to = "expression") %>%
-  mutate( id = factor(id) ) %>%
-  ggplot( aes(x=id, y=expression)) +
-  geom_boxplot()
-```
-
-```{r}
-readRDS(ntrFILE)
-```
-
-## Unnormalised Validation Data
-
-```{r}
-readRDS(valFILE) %>%
-  slice(1:10) %>%
-  pivot_longer(-id, names_to = "gene", values_to = "expression") %>%
-  mutate( id = factor(id) ) %>%
-  ggplot( aes(x=id, y=expression)) +
-  geom_boxplot()
+  group_by(id) %>%
+  summarise( mn = mean(expression),
+             sd = sd(expression) )
 ```
 
 ## Normalised Validation Data
 
 ```{r}
-readRDS(nvlFILE) %>%
-  slice(1:10) %>%
+readRDS(path(cache, "norm_validation.rds")) %>%
+  print() %>%
   pivot_longer(-id, names_to = "gene", values_to = "expression") %>%
-  mutate( id = factor(id) ) %>%
-  ggplot( aes(x=id, y=expression)) +
-  geom_boxplot()
+  group_by(id) %>%
+  summarise( mn = mean(expression),
+             sd = sd(expression) )
 ```
 
-```{r}
-readRDS(nvlFILE)
-```
+## Change the normalisation
+
+- Changing the normalisation is trival

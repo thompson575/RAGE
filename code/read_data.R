@@ -1,12 +1,7 @@
 # -----------------------------------------------------------
 # RAGE: Regression After Gene Expression
 #
-# Read the processed and create 
-#   patients.rds   ... patient characteristics
-#   expression.rds ... expression data 
-# Sample 1000 probes to create an exploratory subset
-#   training.rds   ... 200 patients
-#   validation.rds ... 194 patients
+# Read the processed data and save in cache 
 #
 # Date: 20 March 2023
 #
@@ -27,42 +22,42 @@ url <- "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE168nnn/GSE168753/suppl/GSE168
 # -------------------------------------------------
 # targets - output files created by this script
 #
-datFILE <- path(rawData, "GSE168753_processed_data.csv.gz")
-exnFILE <- path(cache,   "expression.rds")
-patFILE <- path(cache,   "patients.rds")
-valFILE <- path(cache,   "validation.rds")
-trnFILE <- path(cache,   "training.rds")
-logFILE <- path(cache,   "read_data_log.txt")
+datRDS <- path(rawData, "GSE168753_processed_data.csv.gz")
+exnRDS <- path(cache,   "expression.rds")
+patRDS <- path(cache,   "patients.rds")
+valRDS <- path(cache,   "validation.rds")
+trnRDS <- path(cache,   "training.rds")
+logRDS <- path(cache,   "read_data_log.txt")
 
 # --------------------------------------------------
 # Divert warning messages to a log file
 #
-lf <- file(logFILE, open = "wt")
+lf <- file(logRDS, open = "wt")
 sink(lf, type = "message")
 
 # --------------------------------------------------
-# Download the series file from GEO. Save as serFILE
+# Download the series file from GEO. Save as serRDS
 #
-if(!file.exists(datFILE) ) 
-  download.file(url, datFILE)
+if(!file.exists(datRDS) ) 
+  download.file(url, datRDS)
 
 # --------------------------------------------------
 # patient characteristics
 #
-read_csv(datFILE) %>%
+read_csv(datRDS) %>%
   select(id = patient_ID, cmv = CMV, gender = GENDER,
          age = AGE, BMI) %>%
-  saveRDS(patFILE)
+  saveRDS(patRDS)
 
 
 # --------------------------------------------------
 # gene expressions
 # 5090 genes for 394 patients
 #
-read_csv(datFILE) %>%
+read_csv(datRDS) %>%
   select(everything(), id = patient_ID, -CMV, -GENDER,
          -AGE, -BMI) %>%
-  saveRDS(exnFILE)
+  saveRDS(exnRDS)
 
 
 # -----------------------------------------------
@@ -78,16 +73,16 @@ sample(1:394, size = 200, replace = FALSE) %>%
 # -----------------------------------------------
 # Training Data
 #
-readRDS(exnFILE) %>%
+readRDS(exnRDS) %>%
   .[rows, c(1, cols)] %>%
-  saveRDS(trnFILE) 
+  saveRDS(trnRDS) 
 
 # -----------------------------------------------
 # Validation data
 #
-readRDS(exnFILE) %>%
+readRDS(exnRDS) %>%
   .[-rows, c(1, cols)] %>%
-  saveRDS(valFILE) 
+  saveRDS(valRDS) 
 
 # -----------------------------------------------
 # Close the log file
