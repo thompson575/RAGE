@@ -1,0 +1,48 @@
+---
+title: 'RAGE: Normalisation'
+author: "John Thompson"
+date: "`r Sys.Date()`"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.align='center',
+                      message=FALSE, warning=FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(fs)
+
+cache    <- "C:/Projects/RCourse/Masterclass/RAGE/data/cache"
+trainDF  <- readRDS(path(cache, "training.rds"))
+nTrainDF <- readRDS(path(cache, "norm_training.rds"))
+```
+
+# Before Normalisation
+
+```{r}
+trainDF %>%
+  pivot_longer(-id, values_to="expression", names_to="gene") %>%
+  filter( id < 50 ) %>%
+  mutate( id = factor(id)) %>%
+  ggplot( aes(x=id, y=expression, fill=id)) +
+  geom_boxplot() +
+  labs(title = "Unnormalised expression profiles of selected patients") +
+  theme( legend.position = "none")
+  
+```
+
+# After Normalisation
+
+```{r}
+nTrainDF %>%
+  pivot_longer(-id, values_to="expression", names_to="gene") %>%
+  filter( id < 50 ) %>%
+  mutate( id = factor(id)) %>%
+  ggplot( aes(x=id, y=expression, fill=id)) +
+  geom_boxplot() +
+  labs(title = "Normalised expression profiles of selected patients")+
+  theme( legend.position = "none")
+  
+```
